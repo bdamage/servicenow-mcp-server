@@ -258,6 +258,24 @@ export class ServiceNowClient {
   }
 
   /**
+   * Execute a background script on the ServiceNow instance
+   * @param script JavaScript code to execute on the server
+   * @returns Script execution result
+   * @throws Error if script execution fails or user lacks permissions
+   */
+  async executeScript(script: string): Promise<any> {
+    try {
+      const response = await this.axiosInstance.post(
+        '/scripting/executeScript',
+        { script }
+      );
+      return response.data.result;
+    } catch (error) {
+      throw this.handleError(error, 'execute script');
+    }
+  }
+
+  /**
    * Get instance information
    */
   getInstanceInfo() {
