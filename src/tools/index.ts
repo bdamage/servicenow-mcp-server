@@ -17,6 +17,9 @@ export { batchCreateRecordsTool, executeBatchCreateRecords } from './batch-creat
 export { batchUpdateRecordsTool, executeBatchUpdateRecords } from './batch-update-records.js';
 export { batchQueryTablesTool, executeBatchQueryTables } from './batch-query-tables.js';
 
+// Script execution
+export { executeScriptTool, executeExecuteScript } from './execute-script.js';
+
 // CMDB operations
 export { getCiRelationshipsTool, executeGetCiRelationships } from './get-ci-relationships.js';
 export { getImpactAnalysisTool, executeGetImpactAnalysis } from './get-impact-analysis.js';
@@ -44,6 +47,7 @@ export const ALL_TOOLS = [
   'batch_create_records',
   'batch_update_records',
   'batch_query_tables',
+  'execute_script',
   'get_ci_relationships',
   'get_impact_analysis',
   'query_cmdb_ci',
