@@ -4,10 +4,14 @@ A Node.js-based [Model Context Protocol](https://modelcontextprotocol.io) (MCP) 
 
 ## Features
 
-- **11 Powerful Tools** for ServiceNow operations (including 3 batch operations)
+- **19 Powerful Tools** for comprehensive ServiceNow operations
 - **2 Resources** providing instance metadata and common table information
 - **Full CRUD Support** - Create, Read, Update, Delete records
 - **Batch Operations** - Create, update, or query multiple records in parallel
+- **CMDB Management** - Advanced CI relationships, impact analysis, and topology mapping
+- **Event Management** - Create and query events for monitoring and alerting
+- **Service Modeling** - Define business services with criticality and link to CIs
+- **Impact Analysis** - Assess outage impact on services and dependencies
 - **Incident Management** - Specialized tools for searching and managing incidents
 - **User Management** - Query user information by username or sys_id
 - **Schema Discovery** - Explore table structures and available fields

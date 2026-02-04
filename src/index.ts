@@ -32,6 +32,14 @@ import {
   batchCreateRecordsTool,
   batchUpdateRecordsTool,
   batchQueryTablesTool,
+  getCiRelationshipsTool,
+  getImpactAnalysisTool,
+  queryCmdbCiTool,
+  createEventTool,
+  queryEventsTool,
+  createServiceTool,
+  linkCiToServiceTool,
+  getServiceMapTool,
   executeQueryTable,
   executeGetRecord,
   executeSearchIncidents,
@@ -42,7 +50,15 @@ import {
   executeDeleteRecord,
   executeBatchCreateRecords,
   executeBatchUpdateRecords,
-  executeBatchQueryTables
+  executeBatchQueryTables,
+  executeGetCiRelationships,
+  executeGetImpactAnalysis,
+  executeQueryCmdbCi,
+  executeCreateEvent,
+  executeQueryEvents,
+  executeCreateService,
+  executeLinkCiToService,
+  executeGetServiceMap
 } from './tools/index.js';
 
 // Resources
@@ -97,7 +113,15 @@ async function main() {
           deleteRecordTool,
           batchCreateRecordsTool,
           batchUpdateRecordsTool,
-          batchQueryTablesTool
+          batchQueryTablesTool,
+          getCiRelationshipsTool,
+          getImpactAnalysisTool,
+          queryCmdbCiTool,
+          createEventTool,
+          queryEventsTool,
+          createServiceTool,
+          linkCiToServiceTool,
+          getServiceMapTool
         ]
       };
     });
@@ -132,6 +156,22 @@ async function main() {
             return await executeBatchUpdateRecords(args);
           case 'batch_query_tables':
             return await executeBatchQueryTables(args);
+          case 'get_ci_relationships':
+            return await executeGetCiRelationships(args);
+          case 'get_impact_analysis':
+            return await executeGetImpactAnalysis(args);
+          case 'query_cmdb_ci':
+            return await executeQueryCmdbCi(args);
+          case 'create_event':
+            return await executeCreateEvent(args);
+          case 'query_events':
+            return await executeQueryEvents(args);
+          case 'create_service':
+            return await executeCreateService(args);
+          case 'link_ci_to_service':
+            return await executeLinkCiToService(args);
+          case 'get_service_map':
+            return await executeGetServiceMap(args);
           default:
             logger.error(`Unknown tool: ${name}`);
             throw new Error(`Unknown tool: ${name}`);
@@ -212,7 +252,7 @@ async function main() {
     logger.info('='.repeat(50));
     logger.info('ServiceNow MCP Server started successfully');
     logger.info(`Instance: ${config.name} (${config.instance})`);
-    logger.info(`Tools available: 11 (includes 3 batch operations)`);
+    logger.info(`Tools available: 19 (8 basic + 3 batch + 3 CMDB + 2 events + 3 services)`);
     logger.info(`Resources available: 2`);
     logger.info('='.repeat(50));
   } catch (error) {
