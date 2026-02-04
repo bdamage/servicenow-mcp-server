@@ -352,6 +352,224 @@ Query incidents and users at the same time:
 - Results for each successful query (table name, count, records)
 - Failed queries with error details
 
+### 12. get_ci_relationships
+
+Get all relationships for a Configuration Item from the CMDB. Shows parent, child, or all relationships with details about related CIs.
+
+**Parameters:**
+- `ci_sys_id` (required): The sys_id of the Configuration Item
+- `relationship_type` (optional): Type of relationships to retrieve - "parent", "child", or "all" (default: "all")
+- `depth` (optional): Depth of relationship traversal 1-3 (default: 1)
+
+**Example:**
+```
+Get all relationships for a database server:
+- ci_sys_id: abc123def456789012345678901234567
+- relationship_type: all
+- depth: 2
+```
+
+**Returns:**
+- CI details (name, class, status)
+- All relationships with type information
+- Related CIs with their details
+
+### 13. get_impact_analysis
+
+Analyze the potential impact of a CI outage on dependent services and configuration items. Provides risk assessment and identifies critical affected services.
+
+**Parameters:**
+- `ci_sys_id` (required): The sys_id of the Configuration Item to analyze
+- `include_services` (optional): Include affected business services (default: true)
+- `max_depth` (optional): Maximum depth of dependency traversal 1-5 (default: 3)
+
+**Example:**
+```
+Analyze impact of database server outage:
+- ci_sys_id: abc123def456789012345678901234567
+- include_services: true
+- max_depth: 3
+```
+
+**Returns:**
+- Source CI details
+- Impact summary (total affected CIs, critical services, risk level)
+- List of affected CIs and services
+- Dependency chain
+- Risk assessment (HIGH/MEDIUM/LOW)
+
+### 14. query_cmdb_ci
+
+Query Configuration Items from the CMDB with advanced filtering by class, status, environment, and support group.
+
+**Parameters:**
+- `ci_class` (optional): CI class name (e.g., "cmdb_ci_server", "cmdb_ci_database")
+- `name_contains` (optional): Search for CIs with names containing this text
+- `operational_status` (optional): Operational status (1=Operational, 2=Non-Operational, etc.)
+- `environment` (optional): Environment (e.g., "Production", "Development", "Test")
+- `support_group` (optional): Name of the support group
+- `custom_query` (optional): Additional encoded query string
+- `fields` (optional): Comma-separated field list
+- `limit` (optional): Max records (default: 100)
+- `offset` (optional): Pagination offset (default: 0)
+
+**Example:**
+```
+Find all production database servers:
+- ci_class: cmdb_ci_database
+- environment: Production
+- operational_status: 1
+- limit: 50
+```
+
+**Returns:**
+- Count of CIs found
+- Array of Configuration Items with requested fields
+
+### 15. create_event
+
+Create an event in ServiceNow Event Management for monitoring, alerting, and automated incident creation. Events can trigger alerts and automation workflows.
+
+**Parameters:**
+- `source` (required): Event source system (e.g., "Nagios", "Splunk", "Custom Monitor")
+- `node` (required): Source node/host name (e.g., "webserver01.company.com")
+- `description` (required): Event description/message
+- `type` (optional): Event type (e.g., "CPU", "Disk", "Memory", "Network")
+- `resource` (optional): Affected resource (e.g., "CPU Core 1", "/dev/sda1")
+- `severity` (optional): Severity 0=Clear, 1=Critical, 2=Major, 3=Minor, 4=Warning, 5=Info (default: 3)
+- `message_key` (optional): Unique message key for event correlation
+- `additional_info` (optional): Additional context or details (JSON string supported)
+- `ci_identifier` (optional): CI identifier to link event to a Configuration Item
+- `metric_name` (optional): Metric name (e.g., "cpu_utilization", "disk_usage")
+- `metric_value` (optional): Metric value (e.g., "95%", "450ms")
+
+**Example:**
+```
+Create a critical CPU alert:
+- source: Nagios
+- node: webserver01.company.com
+- type: CPU
+- severity: 1
+- description: CPU utilization exceeded threshold
+- metric_name: cpu_utilization
+- metric_value: 98%
+```
+
+**Returns:**
+- Event sys_id
+- Complete event record
+- Processing status message
+
+### 16. query_events
+
+Query Event Management events with filtering by source, node, severity, and time range. Includes statistics on event distribution.
+
+**Parameters:**
+- `source` (optional): Filter by event source system
+- `node` (optional): Filter by source node/host name
+- `severity` (optional): Filter by severity (0-5)
+- `state` (optional): Filter by processing state (Ready, Queued, Processing, Processed, Error)
+- `time_range_hours` (optional): Only show events from the last N hours (1-168, max 1 week)
+- `custom_query` (optional): Additional encoded query string
+- `limit` (optional): Max records (default: 100)
+- `offset` (optional): Pagination offset (default: 0)
+
+**Example:**
+```
+Get all critical events from the last 24 hours:
+- severity: 1
+- time_range_hours: 24
+- limit: 100
+```
+
+**Returns:**
+- Event count
+- Statistics (by severity and state)
+- Array of events ordered by creation time
+
+### 17. create_service
+
+Create a business or technical service in the CMDB with criticality, classification, and ownership. Services can be linked to CIs and service offerings.
+
+**Parameters:**
+- `name` (required): Service name
+- `description` (optional): Service description
+- `service_classification` (optional): "Business Service", "Technical Service", "Service Offering", "Application Service" (default: "Business Service")
+- `business_criticality` (optional): 1=Mission Critical, 2=High, 3=Medium, 4=Low, 5=Planning (default: 3)
+- `operational_status` (optional): 1=Operational, 2=Non-Operational, etc. (default: 1)
+- `owned_by` (optional): sys_id of service owner
+- `managed_by` (optional): sys_id of managing group
+- `parent_service` (optional): sys_id of parent service (for service hierarchies)
+- `service_owner` (optional): Username or sys_id of service owner
+- `support_group` (optional): Name of support group responsible for this service
+- `used_for` (optional): "Production", "Staging", "QA", "Development", "Disaster Recovery"
+- `version` (optional): Service version
+
+**Example:**
+```
+Create a mission-critical e-commerce service:
+- name: E-Commerce Platform
+- description: Customer-facing online store
+- service_classification: Business Service
+- business_criticality: 1
+- operational_status: 1
+- support_group: E-Commerce Team
+- used_for: Production
+```
+
+**Returns:**
+- Service sys_id
+- Complete service record
+- Success message
+
+### 18. link_ci_to_service
+
+Create a relationship between a Configuration Item and a Service in the CMDB. This defines service dependencies on infrastructure.
+
+**Parameters:**
+- `service_sys_id` (required): sys_id of the service
+- `ci_sys_id` (required): sys_id of the Configuration Item to link
+- `relationship_type` (optional): Relationship type (default: "Depends On::Used By")
+
+**Example:**
+```
+Link a database server to the e-commerce service:
+- service_sys_id: service123abc456def789012345678901
+- ci_sys_id: ci123abc456def789012345678901234
+- relationship_type: Depends On::Used By
+```
+
+**Returns:**
+- Relationship sys_id
+- Service details (name, criticality)
+- CI details (name, class)
+- Success message
+
+### 19. get_service_map
+
+Get complete service topology including all related CIs, child services, dependencies, criticality assessment, and health metrics. Visualizes service architecture.
+
+**Parameters:**
+- `service_sys_id` (required): sys_id of the service to map
+- `include_child_services` (optional): Include child services in the map (default: true)
+- `max_depth` (optional): Maximum depth of service hierarchy to traverse 1-5 (default: 3)
+
+**Example:**
+```
+Get complete topology for e-commerce service:
+- service_sys_id: service123abc456def789012345678901
+- include_child_services: true
+- max_depth: 3
+```
+
+**Returns:**
+- Service details (name, classification, criticality, owner)
+- Topology summary (total CIs, health percentage, CIs by class)
+- Related CIs with details
+- Child services
+- Relationships
+- Risk assessment (HIGH/MEDIUM/LOW with reasoning)
+
 ## Available Resources
 
 ### 1. servicenow://instance/info
@@ -639,6 +857,22 @@ For issues related to:
 - **MCP Protocol**: Visit [Model Context Protocol documentation](https://modelcontextprotocol.io)
 
 ## Changelog
+
+### Version 1.2.0
+- Added advanced CMDB operations (3 tools)
+  - `get_ci_relationships`: Explore CI relationships and dependencies
+  - `get_impact_analysis`: Assess outage impact on services and CIs
+  - `query_cmdb_ci`: Advanced CI queries with filtering
+- Added Event Management support (2 tools)
+  - `create_event`: Create events for monitoring and alerting
+  - `query_events`: Query events with statistics
+- Added Service Modeling capabilities (3 tools)
+  - `create_service`: Define business/technical services with criticality
+  - `link_ci_to_service`: Link CIs to services for dependency mapping
+  - `get_service_map`: Visualize service topology with health metrics
+- Total of 19 tools available (8 basic + 3 batch + 3 CMDB + 2 events + 3 services)
+- Enhanced service management with criticality levels and impact analysis
+- Comprehensive event correlation and alerting support
 
 ### Version 1.1.0
 - Added batch operations for improved performance
