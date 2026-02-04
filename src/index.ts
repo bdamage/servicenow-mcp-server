@@ -29,6 +29,9 @@ import {
   updateRecordTool,
   getTableSchemaTool,
   deleteRecordTool,
+  batchCreateRecordsTool,
+  batchUpdateRecordsTool,
+  batchQueryTablesTool,
   executeQueryTable,
   executeGetRecord,
   executeSearchIncidents,
@@ -36,7 +39,10 @@ import {
   executeCreateRecord,
   executeUpdateRecord,
   executeGetTableSchema,
-  executeDeleteRecord
+  executeDeleteRecord,
+  executeBatchCreateRecords,
+  executeBatchUpdateRecords,
+  executeBatchQueryTables
 } from './tools/index.js';
 
 // Resources
@@ -88,7 +94,10 @@ async function main() {
           createRecordTool,
           updateRecordTool,
           getTableSchemaTool,
-          deleteRecordTool
+          deleteRecordTool,
+          batchCreateRecordsTool,
+          batchUpdateRecordsTool,
+          batchQueryTablesTool
         ]
       };
     });
@@ -117,6 +126,12 @@ async function main() {
             return await executeGetTableSchema(args);
           case 'delete_record':
             return await executeDeleteRecord(args);
+          case 'batch_create_records':
+            return await executeBatchCreateRecords(args);
+          case 'batch_update_records':
+            return await executeBatchUpdateRecords(args);
+          case 'batch_query_tables':
+            return await executeBatchQueryTables(args);
           default:
             logger.error(`Unknown tool: ${name}`);
             throw new Error(`Unknown tool: ${name}`);
@@ -197,7 +212,7 @@ async function main() {
     logger.info('='.repeat(50));
     logger.info('ServiceNow MCP Server started successfully');
     logger.info(`Instance: ${config.name} (${config.instance})`);
-    logger.info(`Tools available: 8`);
+    logger.info(`Tools available: 11 (includes 3 batch operations)`);
     logger.info(`Resources available: 2`);
     logger.info('='.repeat(50));
   } catch (error) {

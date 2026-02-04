@@ -133,6 +133,131 @@ export class ServiceNowClient {
   }
 
   /**
+   * Batch create multiple records in parallel
+   * @param table Table name
+   * @param records Array of record data
+   * @returns Array of created records with results and any errors
+   */
+  async batchCreate<T = ServiceNowRecord>(
+    table: string,
+    records: Partial<T>[]
+  ): Promise<{ success: boolean; results: any[]; errors: any[] }> {
+    const results: any[] = [];
+    const errors: any[] = [];
+
+    // Execute all creates in parallel
+    const promises = records.map(async (data, index) => {
+      try {
+        const response = await this.create<T>(table, data);
+        results.push({
+          index,
+          success: true,
+          record: response.result
+        });
+      } catch (error) {
+        errors.push({
+          index,
+          success: false,
+          data,
+          error: error instanceof Error ? error.message : String(error)
+        });
+      }
+    });
+
+    await Promise.all(promises);
+
+    return {
+      success: errors.length === 0,
+      results,
+      errors
+    };
+  }
+
+  /**
+   * Batch update multiple records in parallel
+   * @param table Table name
+   * @param updates Array of {sys_id, data} objects
+   * @returns Array of updated records with results and any errors
+   */
+  async batchUpdate<T = ServiceNowRecord>(
+    table: string,
+    updates: Array<{ sys_id: string; data: Partial<T> }>
+  ): Promise<{ success: boolean; results: any[]; errors: any[] }> {
+    const results: any[] = [];
+    const errors: any[] = [];
+
+    // Execute all updates in parallel
+    const promises = updates.map(async (update, index) => {
+      try {
+        const response = await this.update<T>(table, update.sys_id, update.data);
+        results.push({
+          index,
+          success: true,
+          sys_id: update.sys_id,
+          record: response.result
+        });
+      } catch (error) {
+        errors.push({
+          index,
+          success: false,
+          sys_id: update.sys_id,
+          data: update.data,
+          error: error instanceof Error ? error.message : String(error)
+        });
+      }
+    });
+
+    await Promise.all(promises);
+
+    return {
+      success: errors.length === 0,
+      results,
+      errors
+    };
+  }
+
+  /**
+   * Query multiple tables in parallel
+   * @param queries Array of {table, params} objects
+   * @returns Array of query results with any errors
+   */
+  async batchQuery(
+    queries: Array<{ table: string; params?: QueryParams }>
+  ): Promise<{ success: boolean; results: any[]; errors: any[] }> {
+    const results: any[] = [];
+    const errors: any[] = [];
+
+    // Execute all queries in parallel
+    const promises = queries.map(async (query, index) => {
+      try {
+        const response = await this.query(query.table, query.params);
+        results.push({
+          index,
+          success: true,
+          table: query.table,
+          count: response.result.length,
+          records: response.result
+        });
+      } catch (error) {
+        errors.push({
+          index,
+          success: false,
+          table: query.table,
+          error: error instanceof Error ? error.message : String(error)
+        });
+      }
+    });
+
+    await Promise.all(promises);
+
+    return {
+      success: errors.length === 0,
+      results,
+      errors
+    };
+  }
+
+  /**
    * Get instance information
    */
   getInstanceInfo() {
