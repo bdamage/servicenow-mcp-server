@@ -74,3 +74,66 @@ export interface ServiceNowError {
   };
   status: string;
 }
+
+// IRE (Identification and Reconciliation Engine) types
+
+/**
+ * IRE Relation definition for CI relationships
+ */
+export interface IRERelation {
+  type: string;
+  target: string;
+  properties?: Record<string, any>;
+}
+
+/**
+ * IRE Item structure for API requests
+ */
+export interface IREItem {
+  className: string;
+  values: Record<string, any>;
+  internal_id?: string;
+  sys_object_source_info?: {
+    source: string;
+  };
+  relations?: IRERelation[];
+  referenceItems?: any[];
+}
+
+/**
+ * IRE API request payload
+ */
+export interface IRERequest {
+  items: IREItem[];
+  relations?: IRERelation[];
+  referenceItems?: any[];
+}
+
+/**
+ * IRE response for single CI
+ * operation indicates what happened during IRE processing
+ */
+export interface IREItemResponse {
+  operation: 'identified' | 'created' | 'updated' | 'skipped' | 'error';
+  sys_id?: string;
+  ci_identifier?: string;
+  error?: string;
+  status?: string;
+}
+
+/**
+ * IRE API response
+ */
+export interface IREResponse {
+  result: IREItemResponse[];
+}
+
+/**
+ * Discovery data source record
+ */
+export interface DataSourceRecord extends ServiceNowRecord {
+  name: string;
+  label: string;
+  active: boolean;
+  type?: string;
+}

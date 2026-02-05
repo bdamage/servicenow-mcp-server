@@ -9,7 +9,11 @@ import {
   ServiceNowTableResponse,
   ServiceNowSingleResponse,
   ServiceNowRecord,
-  QueryParams
+  QueryParams,
+  IREItem,
+  IRERequest,
+  IREResponse,
+  DataSourceRecord
 } from './types.js';
 
 export class ServiceNowClient {
@@ -255,6 +259,92 @@ export class ServiceNowClient {
       results,
       errors
     };
+  }
+
+  /**
+   * Create or update a CI using IRE (Identification and Reconciliation Engine)
+   * @param dataSource Discovery source name
+   * @param item IRE item with CI data
+   * @returns IRE response with operation status
+   */
+  async createOrUpdateCI(
+    dataSource: string,
+    item: IREItem
+  ): Promise<IREResponse> {
+    try {
+      const payload: IRERequest = {
+        items: [{
+          ...item,
+          sys_object_source_info: {
+            source: dataSource
+          }
+        }]
+      };
+
+      const response = await this.axiosInstance.post<IREResponse>(
+        '/identifyreconcile',
+        payload
+      );
+
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'create or update CI via IRE');
+    }
+  }
+
+  /**
+   * Batch create or update CIs using IRE
+   * @param dataSource Discovery source name
+   * @param items Array of IRE items (max 100)
+   * @returns IRE response with results for all items
+   */
+  async batchCreateOrUpdateCIs(
+    dataSource: string,
+    items: IREItem[]
+  ): Promise<IREResponse> {
+    try {
+      const payload: IRERequest = {
+        items: items.map(item => ({
+          ...item,
+          sys_object_source_info: {
+            source: dataSource
+          }
+        }))
+      };
+
+      const response = await this.axiosInstance.post<IREResponse>(
+        '/identifyreconcile',
+        payload
+      );
+
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error, 'batch create or update CIs via IRE');
+    }
+  }
+
+  /**
+   * List available discovery data sources for IRE operations
+   * @param activeOnly Show only active sources
+   * @returns Array of data source records
+   */
+  async listDataSources(
+    activeOnly: boolean = true
+  ): Promise<ServiceNowTableResponse<DataSourceRecord>> {
+    try {
+      const params: QueryParams = {
+        sysparm_fields: 'name,label,active,type'
+      };
+
+      if (activeOnly) {
+        params.sysparm_query = 'active=true';
+      }
+
+      const response = await this.query<DataSourceRecord>('discovery_source', params);
+      return response;
+    } catch (error) {
+      throw this.handleError(error, 'list data sources');
+    }
   }
 
   /**

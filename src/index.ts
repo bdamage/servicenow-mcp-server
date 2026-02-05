@@ -40,6 +40,9 @@ import {
   createServiceTool,
   linkCiToServiceTool,
   getServiceMapTool,
+  ireCreateOrUpdateCiTool,
+  ireBatchCreateOrUpdateCisTool,
+  ireListDataSourcesTool,
   executeQueryTable,
   executeGetRecord,
   executeSearchIncidents,
@@ -58,7 +61,10 @@ import {
   executeQueryEvents,
   executeCreateService,
   executeLinkCiToService,
-  executeGetServiceMap
+  executeGetServiceMap,
+  executeIreCreateOrUpdateCi,
+  executeIreBatchCreateOrUpdateCis,
+  executeIreListDataSources
 } from './tools/index.js';
 
 // Resources
@@ -121,7 +127,10 @@ async function main() {
           queryEventsTool,
           createServiceTool,
           linkCiToServiceTool,
-          getServiceMapTool
+          getServiceMapTool,
+          ireCreateOrUpdateCiTool,
+          ireBatchCreateOrUpdateCisTool,
+          ireListDataSourcesTool
         ]
       };
     });
@@ -172,6 +181,12 @@ async function main() {
             return await executeLinkCiToService(args);
           case 'get_service_map':
             return await executeGetServiceMap(args);
+          case 'ire_create_or_update_ci':
+            return await executeIreCreateOrUpdateCi(args);
+          case 'ire_batch_create_or_update_cis':
+            return await executeIreBatchCreateOrUpdateCis(args);
+          case 'ire_list_data_sources':
+            return await executeIreListDataSources(args);
           default:
             logger.error(`Unknown tool: ${name}`);
             throw new Error(`Unknown tool: ${name}`);
@@ -252,7 +267,7 @@ async function main() {
     logger.info('='.repeat(50));
     logger.info('ServiceNow MCP Server started successfully');
     logger.info(`Instance: ${config.name} (${config.instance})`);
-    logger.info(`Tools available: 19 (8 basic + 3 batch + 3 CMDB + 2 events + 3 services)`);
+    logger.info(`Tools available: 22 (8 basic + 3 batch + 3 CMDB + 2 events + 3 services + 3 IRE)`);
     logger.info(`Resources available: 2`);
     logger.info('='.repeat(50));
   } catch (error) {

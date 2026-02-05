@@ -34,6 +34,11 @@ export { createServiceTool, executeCreateService } from './create-service.js';
 export { linkCiToServiceTool, executeLinkCiToService } from './link-ci-to-service.js';
 export { getServiceMapTool, executeGetServiceMap } from './get-service-map.js';
 
+// IRE (Identification and Reconciliation Engine) operations
+export { ireCreateOrUpdateCiTool, executeIreCreateOrUpdateCi } from './ire-create-or-update-ci.js';
+export { ireBatchCreateOrUpdateCisTool, executeIreBatchCreateOrUpdateCis } from './ire-batch-create-or-update-cis.js';
+export { ireListDataSourcesTool, executeIreListDataSources } from './ire-list-data-sources.js';
+
 // Array of all tools for MCP server registration
 export const ALL_TOOLS = [
   'query_table',
@@ -55,7 +60,10 @@ export const ALL_TOOLS = [
   'query_events',
   'create_service',
   'link_ci_to_service',
-  'get_service_map'
+  'get_service_map',
+  'ire_create_or_update_ci',
+  'ire_batch_create_or_update_cis',
+  'ire_list_data_sources'
 ] as const;
 
 export type ToolName = typeof ALL_TOOLS[number];

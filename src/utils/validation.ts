@@ -60,3 +60,50 @@ export const offsetSchema = z.number()
  * - Must be an object
  */
 export const recordDataSchema = z.record(z.any());
+
+/**
+ * Validates CI class name
+ * - Must start with cmdb_ci
+ */
+export const ciClassNameSchema = z.string()
+  .min(1, 'CI class name is required')
+  .regex(/^cmdb_ci/, 'CI class must start with "cmdb_ci"');
+
+/**
+ * Validates data source name
+ * - Alphanumeric with dashes/underscores
+ */
+export const dataSourceSchema = z.string()
+  .min(1, 'Data source is required')
+  .regex(/^[a-zA-Z0-9_-]+$/, 'Data source must be alphanumeric with dashes/underscores');
+
+/**
+ * Validates IRE relation structure
+ */
+export const ireRelationSchema = z.object({
+  type: z.string().min(1, 'Relation type is required'),
+  target: z.string().min(1, 'Relation target is required'),
+  properties: recordDataSchema.optional()
+});
+
+/**
+ * Validates IRE item structure
+ */
+export const ireItemSchema = z.object({
+  className: ciClassNameSchema,
+  values: recordDataSchema,
+  internal_id: z.string().optional(),
+  sys_object_source_info: z.object({
+    source: z.string()
+  }).optional(),
+  relations: z.array(ireRelationSchema).optional(),
+  referenceItems: z.array(z.any()).optional()
+});
+
+/**
+ * Validates batch IRE items
+ * - Between 1 and 100 items
+ */
+export const ireBatchItemsSchema = z.array(ireItemSchema)
+  .min(1, 'At least one item is required')
+  .max(100, 'Maximum 100 items per batch');

@@ -6,11 +6,12 @@ A Node.js-based [Model Context Protocol](https://modelcontextprotocol.io) (MCP) 
 
 ## Features
 
-- **19 Powerful Tools** for comprehensive ServiceNow operations
+- **22 Powerful Tools** for comprehensive ServiceNow operations
 - **2 Resources** providing instance metadata and common table information
 - **Full CRUD Support** - Create, Read, Update, Delete records
 - **Batch Operations** - Create, update, or query multiple records in parallel
 - **CMDB Management** - Advanced CI relationships, impact analysis, and topology mapping
+- **IRE Integration** - Best-practice CMDB data imports with duplicate prevention and reconciliation
 - **Event Management** - Create and query events for monitoring and alerting
 - **Service Modeling** - Define business services with criticality and link to CIs
 - **Impact Analysis** - Assess outage impact on services and dependencies
@@ -620,6 +621,140 @@ Get complete topology for e-commerce service:
 - Relationships
 - Risk assessment (HIGH/MEDIUM/LOW with reasoning)
 
+### 20. ire_create_or_update_ci
+
+Create or update a single Configuration Item using ServiceNow's Identification and Reconciliation Engine (IRE). IRE provides intelligent CMDB data management with automatic duplicate detection, identification rules, and reconciliation.
+
+**Why use IRE instead of create_record?**
+- **Automatic Duplicate Prevention**: Uses identification rules to find existing CIs
+- **Intelligent Reconciliation**: Merges data from multiple sources based on precedence
+- **Data Quality**: Enforces standardized CMDB import process
+- **Source Tracking**: Tracks data origin for audit and reconciliation
+
+**Prerequisites:**
+- Data source must be configured in ServiceNow's `discovery_source` table
+- Identification rules should be configured for CI class (optional but recommended)
+- Use `ire_list_data_sources` to see available sources
+
+**Parameters:**
+
+- `data_source` (required): Discovery source name (e.g., "MyDiscoveryTool")
+- `class_name` (required): CI class name starting with "cmdb_ci" (e.g., "cmdb_ci_server")
+- `values` (required): CI attributes as key-value pairs
+- `internal_id` (optional): Unique identifier from source system (recommended for tracking)
+- `relations` (optional): CI relationship definitions
+- `reference_items` (optional): Reference field data (advanced)
+
+**Example:**
+
+```
+Create or update a server CI:
+- data_source: MyDiscoverySource
+- class_name: cmdb_ci_server
+- values: {"name": "srv-web-01", "ip_address": "10.0.1.50", "host_name": "srv-web-01.example.com", "os_name": "Red Hat Enterprise Linux"}
+- internal_id: aws-i-1234567890abcdef
+```
+
+**Returns:**
+
+- Operation status: "created", "updated", "identified", "skipped", or "error"
+- CI sys_id
+- CI identifier
+- Status message
+- Error details (if applicable)
+
+### 21. ire_batch_create_or_update_cis
+
+Batch create or update multiple Configuration Items (up to 100) using IRE in a single operation. Ideal for bulk imports and synchronization.
+
+**Parameters:**
+
+- `data_source` (required): Discovery source name
+- `items` (required, 1-100): Array of CI definitions, each containing:
+  - `className`: CI class name
+  - `values`: CI attributes
+  - `internal_id`: Unique identifier (optional)
+  - `relations`: CI relationships (optional)
+  - `referenceItems`: Reference data (optional)
+
+**Example:**
+
+```
+Import 3 servers from discovery:
+- data_source: MyDiscoverySource
+- items: [
+    {
+      "className": "cmdb_ci_server",
+      "values": {"name": "srv-web-01", "ip_address": "10.0.1.50"}
+    },
+    {
+      "className": "cmdb_ci_server",
+      "values": {"name": "srv-web-02", "ip_address": "10.0.1.51"}
+    },
+    {
+      "className": "cmdb_ci_database",
+      "values": {"name": "db-prod-01", "ip_address": "10.0.2.10"}
+    }
+  ]
+```
+
+**Returns:**
+
+- Total, created, updated, identified, skipped, and failed counts
+- Per-CI results with operation status and sys_id
+- Detailed error information for failures
+- Summary message
+
+### 22. ire_list_data_sources
+
+List available discovery data sources configured in ServiceNow for use with IRE operations.
+
+**Parameters:**
+
+- `active_only` (optional): Show only active data sources (default: true)
+
+**Example:**
+
+```
+List all active data sources:
+- active_only: true
+```
+
+**Returns:**
+
+- Count of data sources
+- Array of sources with:
+  - Name
+  - Label
+  - Active status
+  - Type
+
+## IRE (Identification and Reconciliation Engine) Overview
+
+The IRE tools (`ire_create_or_update_ci`, `ire_batch_create_or_update_cis`, `ire_list_data_sources`) provide best-practice CMDB data integration:
+
+**Key Benefits:**
+- **Duplicate Prevention**: Automatically identifies existing CIs using configured identification rules
+- **Data Reconciliation**: Intelligently merges data from multiple sources
+- **Source Management**: Tracks data origin and applies source precedence rules
+- **Data Quality**: Enforces validation and standardized import processes
+- **Relationship Handling**: Manages CI dependencies and relationships
+
+**When to Use IRE vs Direct Table Operations:**
+
+| Use Case | Recommended Tool | Reason |
+|----------|-----------------|--------|
+| Importing from external systems | IRE tools | Prevents duplicates, tracks sources |
+| Discovery tool integration | IRE tools | Handles reconciliation automatically |
+| One-time manual CI creation | `create_record` | Simpler for ad-hoc tasks |
+| Bulk data synchronization | `ire_batch_create_or_update_cis` | Efficient, prevents duplicates |
+| Updating known CI by sys_id | `update_record` | Direct update when sys_id is known |
+
+**Prerequisites:**
+1. **Data Sources**: Configure in ServiceNow at System Definition > Discovery Sources
+2. **Identification Rules**: Set up at CMDB > Configuration > Identification Rules (defines how to match CIs)
+3. **Reconciliation Rules**: Configure at CMDB > Configuration > Reconciliation Rules (defines data precedence)
+
 ## Available Resources
 
 ### 1. servicenow://instance/info
@@ -940,7 +1075,13 @@ For issues related to:
   - `create_service`: Define business/technical services with criticality
   - `link_ci_to_service`: Link CIs to services for dependency mapping
   - `get_service_map`: Visualize service topology with health metrics
-- Total of 19 tools available (8 basic + 3 batch + 3 CMDB + 2 events + 3 services)
+- Added IRE (Identification and Reconciliation Engine) support (3 tools)
+  - `ire_create_or_update_ci`: Create/update CIs with duplicate prevention
+  - `ire_batch_create_or_update_cis`: Batch CI operations with IRE (up to 100)
+  - `ire_list_data_sources`: List configured discovery data sources
+- Total of 22 tools available (8 basic + 3 batch + 3 CMDB + 2 events + 3 services + 3 IRE)
+- Best-practice CMDB data integration with automatic duplicate detection
+- Intelligent data reconciliation from multiple sources
 - Enhanced service management with criticality levels and impact analysis
 - Comprehensive event correlation and alerting support
 
