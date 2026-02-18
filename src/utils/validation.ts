@@ -33,7 +33,7 @@ export const queryStringSchema = z.string().optional();
  * - Comma-separated field names
  */
 export const fieldListSchema = z.string()
-  .regex(/^[a-zA-Z0-9_,]+$/, 'Fields must be comma-separated alphanumeric names')
+  .regex(/^[a-zA-Z0-9_.,]+$/, 'Fields must be comma-separated alphanumeric names (dot-walking supported)')
   .optional();
 
 /**

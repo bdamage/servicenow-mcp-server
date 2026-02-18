@@ -113,7 +113,7 @@ export class ServiceNowClient {
     data: Partial<T>
   ): Promise<ServiceNowSingleResponse<T>> {
     try {
-      const response = await this.axiosInstance.put<ServiceNowSingleResponse<T>>(
+      const response = await this.axiosInstance.patch<ServiceNowSingleResponse<T>>(
         `/table/${table}/${sysId}`,
         data
       );
@@ -362,6 +362,46 @@ export class ServiceNowClient {
       return response.data.result;
     } catch (error) {
       throw this.handleError(error, 'execute script');
+    }
+  }
+
+  /**
+   * Get aggregate count (and optional group-by breakdown) for a table
+   * Uses /api/now/stats/{table} which is reliable unlike limit=1 queries
+   * @param table Table name
+   * @param query Optional encoded query filter
+   * @param groupBy Optional field name to group results by
+   * @returns Count and optional group breakdown
+   */
+  async getAggregateCount(
+    table: string,
+    query?: string,
+    groupBy?: string
+  ): Promise<{ count: number; table: string; grouped?: Array<{ value: string; count: number }> }> {
+    try {
+      const params: Record<string, any> = { sysparm_count: true };
+      if (query) params.sysparm_query = query;
+      if (groupBy) params.sysparm_group_by = groupBy;
+
+      const response = await this.axiosInstance.get(`/stats/${table}`, { params });
+      const data = response.data.result;
+
+      // Group-by returns an array; plain count returns a single stats object
+      if (Array.isArray(data)) {
+        const grouped = data.map((item: any) => ({
+          value: item.groupby_fields?.[0]?.value ?? 'unknown',
+          count: parseInt(item.stats?.count ?? '0', 10)
+        }));
+        const totalCount = grouped.reduce((sum, g) => sum + g.count, 0);
+        return { count: totalCount, table, grouped };
+      }
+
+      return {
+        count: parseInt(data?.stats?.count ?? '0', 10),
+        table
+      };
+    } catch (error) {
+      throw this.handleError(error, 'get aggregate count');
     }
   }
 

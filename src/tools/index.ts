@@ -39,6 +39,18 @@ export { ireCreateOrUpdateCiTool, executeIreCreateOrUpdateCi } from './ire-creat
 export { ireBatchCreateOrUpdateCisTool, executeIreBatchCreateOrUpdateCis } from './ire-batch-create-or-update-cis.js';
 export { ireListDataSourcesTool, executeIreListDataSources } from './ire-list-data-sources.js';
 
+// Instance Health & War Room Assessment tools (SOP 0)
+export { getRecordCountTool, executeGetRecordCount } from './get-record-count.js';
+export { discoverTablesTool, executeDiscoverTables } from './discover-tables.js';
+export { queryScheduledJobsTool, executeQueryScheduledJobs } from './query-scheduled-jobs.js';
+export { toggleScheduledJobTool, executeToggleScheduledJob } from './toggle-scheduled-job.js';
+export { bulkDeleteRecordsTool, executeBulkDeleteRecords } from './bulk-delete-records.js';
+export { querySyslogTool, executeQuerySyslog } from './query-syslog.js';
+export { getSystemPropertiesTool, executeGetSystemProperties } from './get-system-properties.js';
+export { getInstanceHealthTool, executeGetInstanceHealth } from './get-instance-health.js';
+export { createScheduledJobTool, executeCreateScheduledJob } from './create-scheduled-job.js';
+export { assessDatabaseHealthTool, executeAssessDatabaseHealth } from './assess-database-health.js';
+
 // Array of all tools for MCP server registration
 export const ALL_TOOLS = [
   'query_table',
@@ -63,7 +75,17 @@ export const ALL_TOOLS = [
   'get_service_map',
   'ire_create_or_update_ci',
   'ire_batch_create_or_update_cis',
-  'ire_list_data_sources'
+  'ire_list_data_sources',
+  'get_record_count',
+  'discover_tables',
+  'query_scheduled_jobs',
+  'toggle_scheduled_job',
+  'bulk_delete_records',
+  'query_syslog',
+  'get_system_properties',
+  'get_instance_health',
+  'create_scheduled_job',
+  'assess_database_health'
 ] as const;
 
 export type ToolName = typeof ALL_TOOLS[number];

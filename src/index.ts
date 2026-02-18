@@ -43,6 +43,7 @@ import {
   ireCreateOrUpdateCiTool,
   ireBatchCreateOrUpdateCisTool,
   ireListDataSourcesTool,
+  executeScriptTool,
   executeQueryTable,
   executeGetRecord,
   executeSearchIncidents,
@@ -64,7 +65,28 @@ import {
   executeGetServiceMap,
   executeIreCreateOrUpdateCi,
   executeIreBatchCreateOrUpdateCis,
-  executeIreListDataSources
+  executeIreListDataSources,
+  executeExecuteScript,
+  getRecordCountTool,
+  executeGetRecordCount,
+  discoverTablesTool,
+  executeDiscoverTables,
+  queryScheduledJobsTool,
+  executeQueryScheduledJobs,
+  toggleScheduledJobTool,
+  executeToggleScheduledJob,
+  bulkDeleteRecordsTool,
+  executeBulkDeleteRecords,
+  querySyslogTool,
+  executeQuerySyslog,
+  getSystemPropertiesTool,
+  executeGetSystemProperties,
+  getInstanceHealthTool,
+  executeGetInstanceHealth,
+  createScheduledJobTool,
+  executeCreateScheduledJob,
+  assessDatabaseHealthTool,
+  executeAssessDatabaseHealth
 } from './tools/index.js';
 
 // Resources
@@ -130,7 +152,18 @@ async function main() {
           getServiceMapTool,
           ireCreateOrUpdateCiTool,
           ireBatchCreateOrUpdateCisTool,
-          ireListDataSourcesTool
+          ireListDataSourcesTool,
+          executeScriptTool,
+          getRecordCountTool,
+          discoverTablesTool,
+          queryScheduledJobsTool,
+          toggleScheduledJobTool,
+          bulkDeleteRecordsTool,
+          querySyslogTool,
+          getSystemPropertiesTool,
+          getInstanceHealthTool,
+          createScheduledJobTool,
+          assessDatabaseHealthTool
         ]
       };
     });
@@ -187,6 +220,28 @@ async function main() {
             return await executeIreBatchCreateOrUpdateCis(args);
           case 'ire_list_data_sources':
             return await executeIreListDataSources(args);
+          case 'execute_script':
+            return await executeExecuteScript(args);
+          case 'get_record_count':
+            return await executeGetRecordCount(args);
+          case 'discover_tables':
+            return await executeDiscoverTables(args);
+          case 'query_scheduled_jobs':
+            return await executeQueryScheduledJobs(args);
+          case 'toggle_scheduled_job':
+            return await executeToggleScheduledJob(args);
+          case 'bulk_delete_records':
+            return await executeBulkDeleteRecords(args);
+          case 'query_syslog':
+            return await executeQuerySyslog(args);
+          case 'get_system_properties':
+            return await executeGetSystemProperties(args);
+          case 'get_instance_health':
+            return await executeGetInstanceHealth(args);
+          case 'create_scheduled_job':
+            return await executeCreateScheduledJob(args);
+          case 'assess_database_health':
+            return await executeAssessDatabaseHealth(args);
           default:
             logger.error(`Unknown tool: ${name}`);
             throw new Error(`Unknown tool: ${name}`);
@@ -267,7 +322,7 @@ async function main() {
     logger.info('='.repeat(50));
     logger.info('ServiceNow MCP Server started successfully');
     logger.info(`Instance: ${config.name} (${config.instance})`);
-    logger.info(`Tools available: 22 (8 basic + 3 batch + 3 CMDB + 2 events + 3 services + 3 IRE)`);
+    logger.info(`Tools available: 33 (8 basic + 3 batch + 1 script + 3 CMDB + 2 events + 3 services + 3 IRE + 10 health-assessment)`);
     logger.info(`Resources available: 2`);
     logger.info('='.repeat(50));
   } catch (error) {
